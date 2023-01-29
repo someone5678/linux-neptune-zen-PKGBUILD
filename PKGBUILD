@@ -1,7 +1,7 @@
 # Maintainer: John Schoenick <johns@valvesoftware.com>
 # Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
-pkgbase=linux-neptune-61-zen
+pkgbase=linux-neptune-zen
 _tag=6.1.7-valve1-zen
 pkgver=${_tag//-/.}
 pkgrel=1
