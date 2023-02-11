@@ -1,5 +1,4 @@
-
-# For people who want to shoot theirselves in the foot
+# zen-patched linux-neptune based custom kernel 
 
 Kernel Source: [Custom zen-kernel source fork repo](https://github.com/someone5678/zen-kernel)
 
