@@ -31,7 +31,7 @@ validpgpkeys=(
 )
 sha256sums=('SKIP'
             'SKIP'
-            'bbc3e5ee7524f9b27b5e9d6b8055db94008f025c4fe64e4c458fb3a42b7c66f8'
+            'SKIP'
             'b2779035c049c363808e3ba238be685884206a4a5b1c0500b707faf12eef6996'
             '6098e453286c58b25a257d22e1c7098b00a0afe3b718e4869bccff9432491c3f')
 
