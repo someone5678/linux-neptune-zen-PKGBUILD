@@ -2,7 +2,7 @@
 # Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
 pkgbase=linux-neptune-zen
-_tag=6.1.18-valve2-zen
+_tag=6.2.9-zen-valve1
 pkgver=${_tag//-/.}
 pkgrel=1
 pkgdesc='Linux'
@@ -19,7 +19,7 @@ options=('!strip' '!debug')
 _srcname=archlinux-linux-neptune
 source=(
   "$_srcname::git+https://github.com/someone5678/zen-kernel.git#tag=$_tag"
-  config-arch       # the original Arch kernel config file
+  config-zen       # the original ZEN kernel config file
   config-neptune    # the neptune kernel fragment file
   90-splash.hook
   splash
@@ -57,7 +57,7 @@ prepare() {
   done
 
   echo "Setting config..."
-  scripts/kconfig/merge_config.sh -m ../config-arch ../config-neptune
+  scripts/kconfig/merge_config.sh -m ../config-zen ../config-neptune
   make olddefconfig
 
   make -s kernelrelease > version
