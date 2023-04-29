@@ -2,7 +2,7 @@
 # Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
 pkgbase=linux-neptune-zen
-_tag=6.2.13-zen-valve1
+_tag=6.3-zen-valve1
 pkgver=${_tag//-/.}
 pkgrel=1
 pkgdesc='Linux'
@@ -39,13 +39,20 @@ export KBUILD_BUILD_HOST=archlinux
 export KBUILD_BUILD_USER=$pkgbase
 export KBUILD_BUILD_TIMESTAMP="$(date -Ru${SOURCE_DATE_EPOCH:+d @$SOURCE_DATE_EPOCH})"
 
+_make() {
+  test -s version
+  make KERNELRELEASE="$(<version)" "$@"
+}
+
 prepare() {
   cd "$_srcname"
 
   echo "Setting version..."
-  scripts/setlocalversion --save-scmversion
   echo "-$pkgrel" > localversion.10-pkgrel
   echo "${pkgbase#linux}" > localversion.20-pkgname
+  make defconfig
+  make -s kernelrelease > version
+  make mrproper
 
   local src
   for src in "${source[@]}"; do
@@ -58,9 +65,8 @@ prepare() {
 
   echo "Setting config..."
   scripts/kconfig/merge_config.sh -m ../config-zen ../config-neptune
-  make olddefconfig
+  _make olddefconfig
 
-  make -s kernelrelease > version
   echo "Prepared $pkgbase version $(<version)"
 
   scripts/config --enable CONFIG_ANDROID
@@ -85,19 +91,18 @@ _package() {
   replaces=(virtualbox-guest-modules-arch wireguard-arch)
 
   cd "$_srcname"
-  local kernver="$(<version)"
-  local modulesdir="$pkgdir/usr/lib/modules/$kernver"
+  local modulesdir="$pkgdir/usr/lib/modules/$(<version)"
 
   echo "Installing boot image..."
   # systemd expects to find the kernel here to allow hibernation
   # https://github.com/systemd/systemd/commit/edda44605f06a41fb86b7ab8128dcf99161d2344
-  install -Dm644 "$(make -s image_name)" "$modulesdir/vmlinuz"
+  install -Dm644 "$(_make -s image_name)" "$modulesdir/vmlinuz"
 
   # Used by mkinitcpio to name the kernel
   echo "$pkgbase" | install -Dm644 /dev/stdin "$modulesdir/pkgbase"
 
   echo "Installing modules..."
-  make INSTALL_MOD_PATH="$pkgdir/usr" INSTALL_MOD_STRIP=1 modules_install
+  _make INSTALL_MOD_PATH="$pkgdir/usr" INSTALL_MOD_STRIP=1 modules_install
 
   # remove build and source links
   rm "$modulesdir"/{source,build}
