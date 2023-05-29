@@ -2,7 +2,7 @@
 # Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
 pkgbase=linux-neptune-zen
-_tag=6.3.4-zen1-valve1
+_tag=6.3.4-zen2-valve1
 pkgver=${_tag//-/.}
 pkgrel=1
 pkgdesc='Linux'
@@ -12,7 +12,7 @@ license=(GPL2)
 makedepends=(
   bc kmod libelf pahole cpio perl tar xz
   # documentation dependencies, disabled for now
-  #xmlto python-sphinx python-sphinx_rtd_theme graphviz imagemagick
+  #python-sphinx python-sphinx_rtd_theme graphviz imagemagick
   git openssh
 )
 options=('!strip' '!debug')
