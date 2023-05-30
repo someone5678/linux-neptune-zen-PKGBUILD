@@ -64,3 +64,7 @@ You can check current kernel by uname command or game session's settings page.
 ```bash
 uname -r
 ```
+
+If you need linux api headers package that matched with this kernel,<br>
+Checkout this fork repo: [linux-api-headers-PKGBUILD](https://github.com/someone5678/linux-api-headers-PKGBUILD)<br>
+This repo will always up-to-date with this kernel's release tag version.
