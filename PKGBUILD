@@ -2,23 +2,36 @@
 # Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
 pkgbase=linux-neptune-zen
-_tag=6.3.7-zen1-valve1
-pkgver=${_tag//-/.}
+_srctag=6.3.7-zen1-valve1
+pkgver=${_srctag//-/.}
 pkgrel=1
 pkgdesc='Linux'
-url="https://github.com/someone5678/zen-kernel/-/tree/$_tag"
+url="https://github.com/someone5678/zen-kernel/-/tree/$_srctag"
 arch=(x86_64)
 license=(GPL2)
 makedepends=(
-  bc kmod libelf pahole cpio perl tar xz
-  # documentation dependencies, disabled for now
-  #python-sphinx python-sphinx_rtd_theme graphviz imagemagick
-  git openssh
+  bc
+  cpio
+  kmod
+  gettext
+  libelf
+  pahole
+  perl
+  tar
+  xz
+
+# documentation dependencies, disabled for now
+# python-sphinx
+# python-sphinx_rtd_theme
+# graphviz
+# imagemagick
+  git
+  openssh
 )
 options=('!strip' '!debug')
 _srcname=archlinux-linux-neptune
 source=(
-  "$_srcname::git+https://github.com/someone5678/zen-kernel.git#tag=$_tag"
+  "$_srcname::git+https://github.com/someone5678/zen-kernel.git#tag=$_srctag"
   config-zen       # the original ZEN kernel config file
   config-neptune    # the neptune kernel fragment file
   90-splash.hook
@@ -82,16 +95,29 @@ prepare() {
 build() {
   cd $_srcname
   make all
-#  make htmldocs
+# make htmldocs
 }
 
 _package() {
   pkgdesc="The $pkgdesc kernel and modules, including the futex-wait-multiple patchset for testing with Proton fsync"
-  depends=(coreutils kmod initramfs)
-  optdepends=('crda: to set the correct wireless channels of your country'
-              'linux-firmware: firmware images needed for some devices')
-  provides=(VIRTUALBOX-GUEST-MODULES WIREGUARD-MODULE)
-  replaces=(virtualbox-guest-modules-arch wireguard-arch)
+  depends=(
+    coreutils
+    initramfs
+    kmod
+  )
+  optdepends=(
+    'wireless-regdb: to set the correct wireless channels of your country'
+    'linux-firmware: firmware images needed for some devices'
+  )
+  provides=(
+    KSMBD-MODULE
+    VIRTUALBOX-GUEST-MODULES
+    WIREGUARD-MODULE
+  )
+  replaces=(
+    virtualbox-guest-modules-arch
+    wireguard-arch
+  )
 
   cd "$_srcname"
   local modulesdir="$pkgdir/usr/lib/modules/$(<version)"
@@ -134,6 +160,9 @@ _package-headers() {
   # add objtool for external module building and enabled VALIDATION_STACK option
   install -Dt "$builddir/tools/objtool" tools/objtool/objtool
 
+  # required when DEBUG_INFO_BTF_MODULES is enabled
+  install -Dt "$builddir/tools/bpf/resolve_btfids" tools/bpf/resolve_btfids/resolve_btfids
+
   # add xfs and shmem for aufs building
   mkdir -p "$builddir"/{fs/xfs,mm}
 
@@ -145,13 +174,16 @@ _package-headers() {
   install -Dt "$builddir/drivers/md" -m644 drivers/md/*.h
   install -Dt "$builddir/net/mac80211" -m644 net/mac80211/*.h
 
-  # http://bugs.archlinux.org/task/13146
+  # https://bugs.archlinux.org/task/13146
   install -Dt "$builddir/drivers/media/i2c" -m644 drivers/media/i2c/msp3400-driver.h
 
-  # http://bugs.archlinux.org/task/20402
+  # https://bugs.archlinux.org/task/20402
   install -Dt "$builddir/drivers/media/usb/dvb-usb" -m644 drivers/media/usb/dvb-usb/*.h
   install -Dt "$builddir/drivers/media/dvb-frontends" -m644 drivers/media/dvb-frontends/*.h
   install -Dt "$builddir/drivers/media/tuners" -m644 drivers/media/tuners/*.h
+
+  # https://bugs.archlinux.org/task/71392
+  install -Dt "$builddir/drivers/iio/common/hid-sensors" -m644 drivers/iio/common/hid-sensors/*.h
 
   echo "Installing KConfig files..."
   find . -name 'Kconfig*' -exec install -Dm644 {} "$builddir/{}" \;
@@ -176,7 +208,7 @@ _package-headers() {
   echo "Stripping build tools..."
   local file
   while read -rd '' file; do
-    case "$(file -bi "$file")" in
+    case "$(file -Sib "$file")" in
       application/x-sharedlib\;*)      # Libraries (.so)
         strip -v $STRIP_SHARED "$file" ;;
       application/x-archive\;*)        # Libraries (.a)
@@ -215,8 +247,11 @@ _package-docs() {
   ln -sr "$builddir/Documentation" "$pkgdir/usr/share/doc/$pkgbase"
 }
 
-#pkgname=("$pkgbase" "$pkgbase-headers" "$pkgbase-docs")
-pkgname=("$pkgbase" "$pkgbase-headers")
+pkgname=(
+  "$pkgbase"
+  "$pkgbase-headers"
+# "$pkgbase-docs"
+)
 for _p in "${pkgname[@]}"; do
   eval "package_$_p() {
     $(declare -f "_package${_p#$pkgbase}")
