@@ -2,7 +2,7 @@
 # Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
 pkgbase=linux-neptune-zen
-_srctag=6.3.7-zen1-valve1
+_srctag=6.3.8-zen1-valve1
 pkgver=${_srctag//-/.}
 pkgrel=1
 pkgdesc='Linux'
