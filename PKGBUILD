@@ -60,9 +60,6 @@ _make() {
 prepare() {
   cd "$_srcname"
 
-  # KernelSU
-  curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -
-
   echo "Setting version..."
   echo "-$pkgrel" > localversion.10-pkgrel
   echo "${pkgbase#linux}" > localversion.20-pkgname
